@@ -10,7 +10,13 @@ export const Container = styled.View`
 
 export const Photo = styled.Image`
   margin-bottom: 15px;
-  width: 300px;
+  width: 250px;
+`;
+
+export const Title = styled.Text`
+  font-size: 18px;
+  color: black;
+  margin-bottom: 15px;
 `;
 
 export const IconEye = styled(Feather)`

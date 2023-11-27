@@ -1,50 +1,39 @@
 import React, {useState} from 'react';
-import {Container, PassWord, Photo, IconEye} from './style';
-import auth from '@react-native-firebase/auth';
-import logo from '../../assets/logo.png';
+import {Container, IconEye, PassWord, Photo, Title} from './style';
 import MyInput from '../../global/MyInput';
 import MyButton from '../../global/MyButton';
-
-import {useNavigation} from '@react-navigation/native';
-
-import {MyLink} from '../../global/MyLink';
 import {Alert, TextInputProps} from 'react-native';
-
-export interface ScreenNavigationProp {
-  navigate: (screen: string) => void;
-}
+import auth from '@react-native-firebase/auth';
+import logo from '../../assets/logo.png';
 
 interface InputProps extends TextInputProps {
   secureTextEntry?: boolean;
 }
 
-export const SignIn: React.FC = ({secureTextEntry}: InputProps) => {
+const CreateUser = ({secureTextEntry}: InputProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const {navigate} = useNavigation<ScreenNavigationProp>();
   const [currentSecure, setCurrentSecure] = useState<boolean>(
     !!secureTextEntry,
   );
 
-  function signIn() {
+  function signUp() {
     auth()
-      .signInWithEmailAndPassword(email, password)
+      .createUserWithEmailAndPassword(email, password)
       .then(() => {
-        console.log('usuario logado!');
+        Alert.alert('Sucesso', 'Conta de usuário criada e conectada!');
       })
       .catch(error => {
-        if (error.code === 'auth/invalid-login') {
-          Alert.alert(
-            'Erro na autenticação',
-            'Email ou senha estão incorretos',
-          );
+        if (error.code === 'auth/email-already-in-use') {
+          console.log('Esse endereço de email já esta em uso!');
+          Alert.alert('Esse endereço de email já esta em uso!');
+        }
+
+        if (error.code === 'auth/invalid-email') {
+          Alert.alert('Esse endereço de email é inválido!');
         }
       });
   }
-
-  const handleSignUp = () => {
-    navigate('SignUp');
-  };
 
   const handleOnPressEye = () => {
     setCurrentSecure(current => !current);
@@ -53,7 +42,15 @@ export const SignIn: React.FC = ({secureTextEntry}: InputProps) => {
   return (
     <Container>
       <Photo source={logo} resizeMode="contain" />
-      <MyInput placeholder="e-mail" value={email} onChangeText={setEmail} />
+      <Title>Crie sua conta</Title>
+      <MyInput
+        placeholder="e-mail"
+        value={email}
+        keyboardType="email-address"
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        autoCorrect={false}
+      />
       <PassWord>
         <MyInput
           placeholder="senha"
@@ -68,8 +65,9 @@ export const SignIn: React.FC = ({secureTextEntry}: InputProps) => {
           color="black"
         />
       </PassWord>
-      <MyButton title="Entrar no app" onPress={signIn} />
-      <MyLink title="Cadastrar" onPress={handleSignUp} />
+      <MyButton title="Criar" onPress={signUp} />
     </Container>
   );
 };
+
+export default CreateUser;
